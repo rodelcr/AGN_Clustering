@@ -18,6 +18,7 @@ data = load_dict(data_path)
 x = data['rp']/little_h
 y = data['wp']/little_h
 err = data['covmat']/(little_h**2)
+err = np.linalg.inv(err)
 
 a = 1/(1.+redshift)
 
