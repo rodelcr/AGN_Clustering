@@ -100,7 +100,8 @@ def main():
             # nwalkers, ndim = initial.shape
                 
         nsteps = steps #Number of steps we want our walkers to take
-        with multiprocessing.get_context("spawn").Pool() as pool:
+        with multiprocessing.get_context("spawn").Pool(30) as pool:
+            print(pool)
             sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=pool, args=(x, y, err), backend=backend)
             #sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
 
