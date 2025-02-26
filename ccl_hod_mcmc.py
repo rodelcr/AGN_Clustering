@@ -6,6 +6,10 @@ import emcee
 import h5py
 from multiprocessing import Process, freeze_support, set_start_method
 import multiprocessing
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
+
 
 steps = int(sys.argv[1])
 PrepvRun = str(sys.argv[2])
@@ -68,9 +72,6 @@ def main():
         filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
         backend.reset(nwalkers, ndim)
-        #from multiprocessing import cpu_count
-        #ncpu = cpu_count()
-        #print("{0} CPUs".format(ncpu))
 
     elif PrepvRun=='Run':
         Pool = multiprocessing.get_context("spawn").Pool()
@@ -79,50 +80,11 @@ def main():
         # Set up the backend
         filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
-
-        # from schwimmbad import MPIPool
-
-        # with MPIPool() as pool:
-        #     if not pool.is_master():
-        #         pool.wait()
-        #         sys.exit(0)
-            
-            # soln = (11.6222, 12.851, 1.049) #Our initial guess for parameters. These are just the halomod defaults
-            # # pos = soln + 0.01 * np.random.randn(32, 3) #We generate initial guesses in a little Guassian ball in parameter-space
-            # pos = soln + 0.01 * np.random.randn(16, 3) #lucia testing
-            # print(pos)
-            # nwalkers, ndim = pos.shape #For each point on our parameter space, we set a little walker a-wandering, to find the best fit parameters
-            # initial = np.random.randn(32, 3)
-            # nwalkers, ndim = initial.shape
                 
         nsteps = steps #Number of steps we want our walkers to take
 
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
 
-
-        # sampler = emcee.EnsembleSampler(
-        #     nwalkers=64,
-        #     ndim=5,
-        #     log_prob_fn=log_prob,
-        #     kwargs={
-        #         "param_names": ["hod_params.M_min", "hod_params.M_sat", "hod_params.alpha", "hod_params.M_cut", "hod_params.sig_logm"],
-        #         "data": (zhaiy, mock_ngal),
-        #         "model": model,
-        #         "derived": [
-        #             "satellite_fraction",
-        #             "mean_tracer_den",
-        #             "bias_effective_tracer",
-        #             "corr_auto_tracer",
-        #         ],
-        #     },
-        #     pool=Pool(cpu_count()),
-        #     blobs_dtype=blobs_dtype,
-        #     backend=backend,
-        # )
-
-
-
-        # sampler.run_mcmc(initial, nsteps)
         sampler.run_mcmc(pos, nsteps, progress=True, store=True)
 
     else:
