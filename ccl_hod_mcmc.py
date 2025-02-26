@@ -73,7 +73,7 @@ def main():
         print("{0} CPUs".format(ncpu))
 
     elif PrepvRun=='Run':
-        Pool = multiprocess.get_context("spawn").Pool(30)
+        Pool = multiprocess.get_context("spawn").Pool()
 
         print('Running!')
         # Set up the backend
