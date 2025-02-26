@@ -16,7 +16,6 @@ def main():
     outfile_subject = str(sys.argv[5]) 
     #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
     whichHOD="nicola20"
-    filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
 
 
     data = load_dict(data_path)
@@ -68,6 +67,7 @@ def main():
 
     if PrepvRun=='Prep':
         print('Prepping')
+        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
         backend.reset(nwalkers, ndim)
         #from multiprocessing import cpu_count
@@ -80,6 +80,7 @@ def main():
 
         print('Running!')
         # Set up the backend
+        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
 
 
