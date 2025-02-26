@@ -63,7 +63,7 @@ def log_probability(sample, inputrs, inputwps, inputerrs):
 
 if PrepvRun=='Prep':
     print('Prepping')
-    filename = f"{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+    filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
     from multiprocessing import cpu_count
@@ -73,7 +73,7 @@ if PrepvRun=='Prep':
 elif PrepvRun=='Run':
     print('Running!')
     # Set up the backend
-    filename = f"{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+    filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
     backend = emcee.backends.HDFBackend(filename)
 
     # from schwimmbad import MPIPool

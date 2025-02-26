@@ -244,9 +244,9 @@ def log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = 'nicola20'
     if np.ndim(inputerrs) == 1:
         return -0.5 * np.sum(((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
-        inverse = np.linalg.inv(inputerrs)
+        #inverse = np.linalg.inv(inputerrs) # assume inverse covariance matrix is being passed 
         r = inputwps-wp_rps
-        return -0.5 * np.matmul(np.matmul(r.T, inverse), r)
+        return -0.5 * np.matmul(np.matmul(r.T, inputerrs), r)
     else: 
         print("Error in log_likelihood: inputerrs must be 1D or 2D")
 
