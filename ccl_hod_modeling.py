@@ -13,6 +13,9 @@ from ELGHOD import ELGHOD
 from Yuan22LRG_HOD import Yuan22LRG_HOD
 from profile_2pt import Profile2ptHOD
 
+def load_dict(filename):
+    return np.load(filename, allow_pickle=True).item()
+
 # plt.rcParams['figure.facecolor'] = 'white'
 # plt.rcParams.update({'figure.autolayout': True})
 

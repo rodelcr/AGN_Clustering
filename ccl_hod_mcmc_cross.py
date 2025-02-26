@@ -5,12 +5,13 @@ import corner
 import emcee
 import h5py
 
-
 steps = int(sys.argv[1])
 PrepvRun = str(sys.argv[2])
 redshift = float(sys.argv[3])
 data_path = str(sys.argv[4])
-outfile_subject = str(sys.argv[5]) # numpy array file with x, y, yerr
+LRG_solution = np.load(str(sys.argv[5])) #  NEED TO SET UP THE INCLUSION OF THE SOLUTION 
+
+data_path2= str(sys.argv[6]) # numpy array file with x, y, yerr
 #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
 whichHOD="nicola20"
 
@@ -18,6 +19,11 @@ data = load_dict(data_path)
 x = data['rp']/little_h
 y = data['wp']/little_h
 err = data['covmat']/(little_h**2)
+
+data2 = load_dict(data_path2)
+x2 = data2['rp']/little_h
+y2 = data2['wp']/little_h
+err2 = data2['covmat']/(little_h**2)
 
 a = 1/(1.+redshift)
 
@@ -63,7 +69,7 @@ def log_probability(sample, inputrs, inputwps, inputerrs):
 
 if PrepvRun=='Prep':
     print('Prepping')
-    filename = f"{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+    filename = "LRG_HOD_"+whichHOD+"_MCMC_0119_"+str(steps)+"_steps.h5"
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
     from multiprocessing import cpu_count
@@ -73,7 +79,7 @@ if PrepvRun=='Prep':
 elif PrepvRun=='Run':
     print('Running!')
     # Set up the backend
-    filename = f"{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+    filename = "LRG_HOD_"+whichHOD+"_MCMC_0119_"+str(steps)+"_steps.h5"
     backend = emcee.backends.HDFBackend(filename)
 
     # from schwimmbad import MPIPool
