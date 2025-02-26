@@ -4,8 +4,7 @@ import sys
 import corner
 import emcee
 import h5py
-import multiprocessing
-
+import multiprocess
 
 
 steps = int(sys.argv[1])
@@ -74,7 +73,8 @@ def main():
         print("{0} CPUs".format(ncpu))
 
     elif PrepvRun=='Run':
-        
+        Pool = multiprocess.get_context("spawn").Pool(30)
+
         print('Running!')
         # Set up the backend
         filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
@@ -97,7 +97,7 @@ def main():
                 
         nsteps = steps #Number of steps we want our walkers to take
 
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=multiprocessing.get_context("spawn").Pool(), args=(x, y, err), backend=backend)
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
 
 
         # sampler = emcee.EnsembleSampler(
