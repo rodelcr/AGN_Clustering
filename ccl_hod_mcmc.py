@@ -4,8 +4,8 @@ import sys
 import corner
 import emcee
 import h5py
-import multiprocess
-
+from multiprocessing import Process, freeze_support, set_start_method
+import multiprocessing
 
 steps = int(sys.argv[1])
 PrepvRun = str(sys.argv[2])
@@ -14,6 +14,8 @@ data_path = str(sys.argv[4])
 outfile_subject = str(sys.argv[5]) # numpy array file with x, y, yerr
 #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
 whichHOD="nicola20"
+filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+
 
 data = load_dict(data_path)
 x = data['rp']/little_h
@@ -62,22 +64,24 @@ def log_probability(sample, inputrs, inputwps, inputerrs):
         return -np.inf
     return lp + log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
 
+
+
+
 def main():
     if PrepvRun=='Prep':
         print('Prepping')
-        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
         backend.reset(nwalkers, ndim)
-        from multiprocessing import cpu_count
-        ncpu = cpu_count()
-        print("{0} CPUs".format(ncpu))
+        #from multiprocessing import cpu_count
+        #ncpu = cpu_count()
+        #print("{0} CPUs".format(ncpu))
 
     elif PrepvRun=='Run':
-        Pool = multiprocess.get_context("spawn").Pool()
+
+        #Pool = multiprocessing.Pool()
 
         print('Running!')
         # Set up the backend
-        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
 
         # from schwimmbad import MPIPool
@@ -96,37 +100,40 @@ def main():
             # nwalkers, ndim = initial.shape
                 
         nsteps = steps #Number of steps we want our walkers to take
-
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
-
-
-        # sampler = emcee.EnsembleSampler(
-        #     nwalkers=64,
-        #     ndim=5,
-        #     log_prob_fn=log_prob,
-        #     kwargs={
-        #         "param_names": ["hod_params.M_min", "hod_params.M_sat", "hod_params.alpha", "hod_params.M_cut", "hod_params.sig_logm"],
-        #         "data": (zhaiy, mock_ngal),
-        #         "model": model,
-        #         "derived": [
-        #             "satellite_fraction",
-        #             "mean_tracer_den",
-        #             "bias_effective_tracer",
-        #             "corr_auto_tracer",
-        #         ],
-        #     },
-        #     pool=Pool(cpu_count()),
-        #     blobs_dtype=blobs_dtype,
-        #     backend=backend,
-        # )
+        with multiprocessing.get_context("spawn").Pool() as pool:
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=pool, args=(x, y, err), backend=backend)
+            #sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
 
 
+            # sampler = emcee.EnsembleSampler(
+            #     nwalkers=64,
+            #     ndim=5,
+            #     log_prob_fn=log_prob,
+            #     kwargs={
+            #         "param_names": ["hod_params.M_min", "hod_params.M_sat", "hod_params.alpha", "hod_params.M_cut", "hod_params.sig_logm"],
+            #         "data": (zhaiy, mock_ngal),
+            #         "model": model,
+            #         "derived": [
+            #             "satellite_fraction",
+            #             "mean_tracer_den",
+            #             "bias_effective_tracer",
+            #             "corr_auto_tracer",
+            #         ],
+            #     },
+            #     pool=Pool(cpu_count()),
+            #     blobs_dtype=blobs_dtype,
+            #     backend=backend,
+            # )
 
-        # sampler.run_mcmc(initial, nsteps)
-        sampler.run_mcmc(pos, nsteps, progress=True, store=True)
+
+
+            # sampler.run_mcmc(initial, nsteps)
+            sampler.run_mcmc(pos, nsteps, progress=True, store=True)
 
     else:
         print('PrepvRun should be Prep or Run')
 
 if __name__ == "__main__":
+    freeze_support()
+    set_start_method('spawn')
     main()
