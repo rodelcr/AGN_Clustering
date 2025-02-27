@@ -227,9 +227,11 @@ def wprp_model_Pk_CCL(cosmo, rps, a, Pk2D):
 
     return model
 
-def wprp_model_HOD_CCL(cosmo, params, rps, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None):
+def wprp_model_HOD_CCL(cosmo, params, rps, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None,ns_independent = False,
+                       params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
 
-    pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
+    pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent, 
+                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
 
     model = wprp_model_Pk_CCL(cosmo, rps, a, pk_gg_Pk2D)
 
@@ -237,8 +239,28 @@ def wprp_model_HOD_CCL(cosmo, params, rps, a, hod_str = 'nicola20', pass_hod_bas
 
 
 #MCMC functions
-def log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None):
-    wp_rps=wprp_model_HOD_CCL(cosmo, sample, rp_array, a, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
+def log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
+                   sample2=None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+    wp_rps=wprp_model_HOD_CCL(cosmo, sample, rp_array, a, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent, 
+                              params2 = sample2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
+
+    wp_rps = np.interp(inputrs, rp_array, wp_rps) #Interpolate the theoretical PCF to the same distances as our observed PCF
+    if np.ndim(inputerrs) == 1:
+        return -0.5 * np.sum(((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
+    if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
+        #inverse = np.linalg.inv(inputerrs) # assume inverse covariance matrix is being passed 
+        r = inputwps-wp_rps
+        return -0.5 * np.matmul(np.matmul(r.T, inputerrs), r)
+    else: 
+        print("Error in log_likelihood: inputerrs must be 1D or 2D")
+
+
+#MCMC functions
+def log_likelihood_LRG_fixed(LRG_solution, sample, inputrs, inputwps, inputerrs, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
+                    hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+    wp_rps=wprp_model_HOD_CCL(cosmo, LRG_solution, rp_array, a, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent, 
+                              params2 = sample, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
+    #TODO clean up this function to reduce the overhead of building the HOD code every time 
 
     wp_rps = np.interp(inputrs, rp_array, wp_rps) #Interpolate the theoretical PCF to the same distances as our observed PCF
     if np.ndim(inputerrs) == 1:
