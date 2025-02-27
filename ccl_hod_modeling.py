@@ -284,7 +284,7 @@ def log_prior(sample, hod_str = 'nicola20'):
         
     if hod_str=="nicola20" or hod_str=="zheng07":
         M_min, sig_logm, M_0, M_1, alpha = sample 
-        if 9.0 < M_min < 16.0 and 8.0 < M_0 < 16.0 and 0.0 < alpha < 2.0 and 0 < sig_logm < 2 and 9.0 < M_1 < 16.0:
+        if 9.0 < M_min < 16.0 and 9.0 < M_0 < 16.0 and 0.0 < alpha < 2.0 and 0 < sig_logm < 2 and 10.0 < M_1 < 16.0 and (((M_0/M_min) -1) >= 0):
             return 0.0
         else:
             return -np.inf
