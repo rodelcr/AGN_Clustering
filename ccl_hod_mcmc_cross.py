@@ -50,12 +50,12 @@ if whichHOD=="zhai17":
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 elif whichHOD=="zh05":
-    soln = np.array([12.6, 0.9,12, 11.5, 0.7])
+    soln = np.array([12.6, 0.9,12.61, 11.5, 0.7])
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 
 elif whichHOD=="nicola20":
-    soln = np.array([12.6, 0.9,12, 11.5, 0.7])
+    soln = np.array([12.6, 0.9,12.7, 11.5, 0.7])
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 else:
