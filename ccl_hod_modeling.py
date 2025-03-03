@@ -295,14 +295,17 @@ def log_prior(sample, hod_str = 'nicola20'):
 
 
 
-def ACF_model_Pk_CCL_auto(cosmo, thetas, Pk2D, zs, dNdz):
-
+def ACF_model_Pk_CCL(cosmo, thetas, Pk2D, zs, dNdz, zs2= None, dNdz2 = None):
+    if zs2 is None:
+        zs2 = zs
+    if dNdz2 is None:
+        dNdz2 = dNdz
     
     b = np.ones_like(zs)
     ell = np.logspace(np.log10(0.01), np.log10(200000), 1000)
 
     clu1 = ccl.NumberCountsTracer(cosmo, has_rsd=False, dndz=(zs,dNdz), bias=(zs,b))
-    clu2 = ccl.NumberCountsTracer(cosmo, has_rsd=False, dndz=(zs,dNdz), bias=(zs,b))
+    clu2 = ccl.NumberCountsTracer(cosmo, has_rsd=False, dndz=(zs2,dNdz2), bias=(zs,b))
     cls_clu = ccl.angular_cl(cosmo, clu1, clu2, ell,  p_of_k_a=Pk2D) 
     xi_clu1 = ccl.correlation(cosmo = cosmo, ell = ell, C_ell = cls_clu, theta = thetas, type='NN', method='FFTLog') 
     
@@ -310,15 +313,20 @@ def ACF_model_Pk_CCL_auto(cosmo, thetas, Pk2D, zs, dNdz):
 
 
 
-def ACF_model_HOD_CCL(cosmo, params, thetas, zs, dNdz,  hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None):
+def ACF_model_HOD_CCL(cosmo, params, thetas, zs, dNdz,  hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
+                      zs2= None, dNdz2 = None,
+                      params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
 
-    pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
 
-    model = ACF_model_Pk_CCL_auto(cosmo, thetas, pk_gg_Pk2D, zs, dNdz)
+    pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent,
+                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
+
+    model = ACF_model_Pk_CCL(cosmo, thetas, pk_gg_Pk2D, zs, dNdz, zs2= zs2, dNdz2 = dNdz2)
 
     return model
 
 def log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None):
+    
     xi_clu1=ACF_model_HOD_CCL(cosmo, sample, thetas, zs, dNdz, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
 
     if np.ndim(inputerrs) == 1:

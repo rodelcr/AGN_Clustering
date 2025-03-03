@@ -35,6 +35,8 @@ x = x[idxs]
 y = y[idxs]
 err = err[idxs[0]:, idxs[0]:]
 
+inverse_covmat= np.linalg.inv(err)
+
 
 # data2 = load_dict(data_path2)
 # x2 = data2['rp']/little_h
@@ -100,7 +102,7 @@ def main():
                 
         nsteps = steps #Number of steps we want our walkers to take
 
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err), backend=backend)
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, inverse_covmat), backend=backend)
 
         sampler.run_mcmc(pos, nsteps, progress=True, store=True)
 
