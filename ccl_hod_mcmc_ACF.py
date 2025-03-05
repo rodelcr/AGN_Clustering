@@ -13,17 +13,18 @@ os.environ["OMP_NUM_THREADS"] = "1"
 
 steps = int(sys.argv[1])
 PrepvRun = str(sys.argv[2])
-redshift = float(sys.argv[3])
-data_path = str(sys.argv[4])
-outfile_subject = str(sys.argv[5]) # numpy array file with x, y, yerr
+data_path = str(sys.argv[3])
+outfile_subject = str(sys.argv[4]) # numpy array file with x, y, yerr
 #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
 whichHOD="nicola20"
 
 data = load_dict(data_path)
-x = data['rp']/little_h
-y = data['wp']/little_h
-err = data['covmat']/(little_h**2)
+x = data['theta']
+y = data['omega']
+err = data['covmat']
 
+dNdz = data['dNdz']
+zgrid = data['zgrid']
 
 err1d = data['error']
 idxs = np.where(np.isnan(err1d) == False)[0]
@@ -34,7 +35,7 @@ err = err[idxs[0]:, idxs[0]:]
 
 inverse_covmat= np.linalg.inv(err)
 
-a = 1/(1.+redshift)
+
 
 np.random.seed(42)
 
@@ -43,12 +44,12 @@ if whichHOD=="zhai17":
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 elif whichHOD=="zh05":
-    soln = np.array([12.6, 0.9,12, 11.5, 0.7])
+    soln = np.array([12.6, 0.9,12.6, 11.5, 0.7])
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 
 elif whichHOD=="nicola20":
-    soln = np.array([12.6, 0.9,12, 11.5, 0.7])
+    soln = np.array([12.6, 0.9,12.6, 11.5, 0.7])
     pos = soln + 0.01 * np.random.randn(64, 5)
 
 else:
@@ -67,18 +68,19 @@ initial_model.update_parameters(    log10Mmin_0=initial_params['M_min'],
                                     log10M0_0=initial_params['M_0'],
                                     log10M1_0=initial_params['M_1'],
                                     alpha_0=initial_params['alpha'])
-            
 
-def log_probability(sample, inputrs, inputwps, inputerrs):
+
+
+def log_probability(sample, thetas, inputACF, inputerrs):
     lp = log_prior(sample, hod_str = whichHOD)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
+    return lp + log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
 
 def main():
     if PrepvRun=='Prep':
         print('Prepping')
-        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+        filename = f"../{outfile_subject}_ACF_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
         backend.reset(nwalkers, ndim)
 
@@ -87,7 +89,7 @@ def main():
 
         print('Running!')
         # Set up the backend
-        filename = f"../{outfile_subject}_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
+        filename = f"../{outfile_subject}_ACF_HOD_"+whichHOD+"_MCMC_0226_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
                 
         nsteps = steps #Number of steps we want our walkers to take

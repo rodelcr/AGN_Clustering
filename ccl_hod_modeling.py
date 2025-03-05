@@ -371,3 +371,24 @@ def bias_from_ccl_HaloProfile_general(HODProfile_obj, cosmo, a):
     integral = hmc.integrate_over_massfunc(integ, cosmo, a)
         
     return integral/ng
+
+
+# Satellite fractions
+
+def satellite_fraction(HODProfile_obj, cosmo, a, ns_independent = False):
+    hmc = ccl.halos.HMCalculator(mass_function=nM, halo_bias=bM, mass_def=hmd_200m)
+
+    def integ_N(M):
+        Nc = HODProfile_obj._Nc(M, a)
+        Ns = HODProfile_obj._Ns(M, a)
+
+        if ns_independent:
+            return Nc + Ns
+        if not ns_independent:
+            return Nc * (1+Ns)
+        
+    def integ_Ns(M):
+        return HODProfile_obj._Ns(M, a)
+    
+    return (hmc.integrate_over_massfunc(integ_Ns, cosmo, a))/(hmc.integrate_over_massfunc(integ_N, cosmo, a))
+        
