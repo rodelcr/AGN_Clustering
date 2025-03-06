@@ -75,8 +75,12 @@ def log_probability(sample, thetas, inputACF, inputerrs):
     lp = log_prior(sample, hod_str = whichHOD)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
-
+    
+    try:
+        return lp + log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
+    except ccl.errors.CCLError:
+        return -np.inf # Ideally just changing the Mmin prior to be limited to 10**15. Msun will reduce the chance of creating an integration error, but just in case
+    
 def main():
     if PrepvRun=='Prep':
         print('Prepping')
