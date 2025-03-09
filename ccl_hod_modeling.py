@@ -334,9 +334,9 @@ def log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 
     if np.ndim(inputerrs) == 1:
         return -0.5 * np.sum(((inputACF-xi_clu1)/inputerrs)**2) 
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
-        inverse = np.linalg.inv(inputerrs)
+        #inverse = np.linalg.inv(inputerrs)
         r = inputACF-xi_clu1
-        return -0.5 * np.matmul(np.matmul(r.T, inverse), r)
+        return -0.5 * np.matmul(np.matmul(r.T, inputerrs), r)
     else: 
         print("Error in log_likelihood_ACF: inputerrs must be 1D or 2D")
 
@@ -392,3 +392,29 @@ def satellite_fraction(HODProfile_obj, cosmo, a, ns_independent = False):
     
     return (hmc.integrate_over_massfunc(integ_Ns, cosmo, a))/(hmc.integrate_over_massfunc(integ_N, cosmo, a))
         
+
+# Convert Mmin to Mave
+
+def Mave_from_Mmin(Mmin, HODProfile_obj, cosmo, a, ns_independent = False):
+    hmc = ccl.halos.HMCalculator(mass_function=nM, halo_bias=bM, mass_def=hmd_200m, log10M_min = Mmin)
+
+
+    def integ(M):
+        Nc = HODProfile_obj._Nc(M, a)
+        Ns = HODProfile_obj._Ns(M, a)
+
+        if ns_independent:
+            return M * (Nc + Ns)
+        if not ns_independent:
+            return M * (Nc * (1+Ns))
+        
+    def integ_norm(M):
+        Nc = HODProfile_obj._Nc(M, a)
+        Ns = HODProfile_obj._Ns(M, a)
+
+        if ns_independent:
+            return (Nc + Ns)
+        if not ns_independent:
+            return (Nc * (1+Ns))
+        
+    return hmc.integrate_over_massfunc(integ, cosmo, a)/hmc.integrate_over_massfunc(integ_norm, cosmo, a)

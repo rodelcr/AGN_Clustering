@@ -32,6 +32,7 @@ idxs = np.where(np.isnan(err1d) == False)[0]
 x = x[idxs]
 y = y[idxs]
 err = err[idxs[0]:, idxs[0]:]
+err1d = err1d[idxs] # Trying out the max likelihood with just 1d errors to see if it converges
 
 inverse_covmat= np.linalg.inv(err)
 
@@ -98,7 +99,8 @@ def main():
                 
         nsteps = steps #Number of steps we want our walkers to take
 
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, inverse_covmat), backend=backend)
+        #sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, err1d), backend=backend) # Trying out the max likelihood with just 1d errors to see if it converges
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, pool=Pool, args=(x, y, inverse_covmat), backend=backend) # Trying out the max likelihood with just 1d errors to see if it converges
 
         sampler.run_mcmc(pos, nsteps, progress=True, store=True)
 
