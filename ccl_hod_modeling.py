@@ -11,6 +11,7 @@ from Zhai17HOD import Zhai17HOD
 from Zheng07HOD import Zheng07HOD
 from ELGHOD import ELGHOD
 from Yuan22LRG_HOD import Yuan22LRG_HOD
+from Zehavi08HOD import Zehavi08HOD
 from profile_2pt import Profile2ptHOD
 
 def load_dict(filename):
@@ -81,10 +82,13 @@ def elg_dict(params):
     return {'pmax': params[0], 'Q': params[1], 'M_cut': params[2], 'sig_logm': params[3], 'gamma': params[4], 'M_1': params[5], 'alpha': params[6], 'k': params[7]}
 #pmax = 0.075, Q = 95, log Mcut = 11.9, σ = 0.5, γ = 5, log M1 = 14.2, α = 0.65, and κ = 1.35. Yuan 2022
 
+def zehavi_dict(params):
+    return {'M_min': params[0], 'M_1': params[1], 'alpha': params[2]}
+
 
 
 def CCL_hod_model(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False):
-    if hod_str != 'nicola20' and hod_str != 'zheng07' and hod_str != 'zhai2017' and hod_str != 'elg' and hod_str != 'yuan22':
+    if hod_str != 'nicola20' and hod_str != 'zheng07' and hod_str != 'zhai2017' and hod_str != 'elg' and hod_str != 'yuan22' and hod_str != 'zehavi08':
         print("For HODs I expect zheng07, zhai17, elg, yuan22, or nicola20")
         
 
@@ -135,6 +139,13 @@ def CCL_hod_model(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass
                                     log10M1_0=params_dict['M_1'],
                                     siglog10M_0=params_dict['sig_logm'],
                                     alpha_0=params_dict['alpha'], ns_independent = ns_independent)
+            
+        if hod_str == 'zehavi08':
+            params_dict = zehavi_dict(params)
+            pg = Zehavi08HOD(mass_def=hmd_200m, concentration=cM)
+            pg.update_parameters(   log10Mmin_0=params_dict['M_min'],
+                                    log10M1_0=params_dict['M_1'],
+                                    alpha_0=params_dict['alpha'], ns_independent = ns_independent)
 
     if pass_hod_base_bool == True: # Speedup by passing a previously calculated HOD profile and just updating the parameters, currently only set up for nicola20 HOD
         if hod_str == 'nicola20':
@@ -177,6 +188,12 @@ def CCL_hod_model(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass
                                     log10Mcut_0=params_dict['M_cut'],
                                     log10M1_0=params_dict['M_1'],
                                     siglog10M_0=params_dict['sig_logm'],
+                                    alpha_0=params_dict['alpha'], ns_independent = ns_independent)
+            
+        if hod_str == 'zehavi08':
+            params_dict = zehavi_dict(params)
+            pass_hod_base.update_parameters(   log10Mmin_0=params_dict['M_min'],
+                                    log10M1_0=params_dict['M_1'],
                                     alpha_0=params_dict['alpha'], ns_independent = ns_independent)
         
         pg = pass_hod_base
@@ -282,6 +299,15 @@ def log_prior(sample, hod_str = 'nicola20'):
         else:
             return -np.inf
         
+    if hod_str=="zehavi08":
+        M_min, M_1, alpha = sample 
+        max_M = 16.95
+        min_M = 9.0
+        if min_M < M_min < 15. and min_M < M_1 < max_M and 0.0 < alpha < 2.0:
+            return 0.0
+        else:
+            return -np.inf
+        
     if hod_str=="nicola20" or hod_str=="zheng07":
         M_min, sig_logm, M_0, M_1, alpha = sample 
         max_M = 16.95
@@ -293,17 +319,17 @@ def log_prior(sample, hod_str = 'nicola20'):
 
         
     else:
-        print("for HODs I expect zheng07, zhai17 or nicola20")
+        print("for HODs I expect zheng07, zehavi08, zhai17 or nicola20")
 
 
 
-def ACF_model_Pk_CCL(cosmo, thetas, Pk2D, zs, dNdz, zs2= None, dNdz2 = None):
+def ACF_model_Pk_CCL(cosmo, thetas, Pk2D, zs, dNdz, zs2= None, dNdz2 = None, b_ = 1.):
     if zs2 is None:
         zs2 = zs
     if dNdz2 is None:
         dNdz2 = dNdz
     
-    b = np.ones_like(zs)
+    b = np.ones_like(zs) * b_
     ell = np.logspace(np.log10(0.01), np.log10(200000), 1000)
 
     clu1 = ccl.NumberCountsTracer(cosmo, has_rsd=False, dndz=(zs,dNdz), bias=(zs,b))

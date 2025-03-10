@@ -16,7 +16,8 @@ PrepvRun = str(sys.argv[2])
 data_path = str(sys.argv[3])
 outfile_subject = str(sys.argv[4]) # numpy array file with x, y, yerr
 #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
-whichHOD="nicola20"
+#whichHOD="nicola20"
+whichHOD="zehavi08"
 
 data = load_dict(data_path)
 x = data['theta']
@@ -36,25 +37,29 @@ err1d = err1d[idxs] # Trying out the max likelihood with just 1d errors to see i
 
 inverse_covmat= np.linalg.inv(err)
 
-
+nwalk = 64
 
 np.random.seed(42)
 
 if whichHOD=="zhai17":
     soln = np.array([13.6, 14.9, 0.43, 11.6 , 0.8])
-    pos = soln + 0.01 * np.random.randn(64, 5)
+    pos = soln + 0.01 * np.random.randn(nwalk, 5)
 
 elif whichHOD=="zh05":
     soln = np.array([12.6, 0.9,12.6, 11.5, 0.7])
-    pos = soln + 0.01 * np.random.randn(64, 5)
+    pos = soln + 0.01 * np.random.randn(nwalk, 5)
 
 
 elif whichHOD=="nicola20":
     soln = np.array([12.6, 0.9,12.6, 11.5, 0.7])
-    pos = soln + 0.01 * np.random.randn(64, 5)
+    pos = soln + 0.01 * np.random.randn(nwalk, 5)
+
+elif whichHOD=="zehavi08":
+    soln = np.array([12.6, 12.6, 0.7])
+    pos = soln + 0.01 * np.random.randn(nwalk, 3)
 
 else:
-    print("for HODs I expect zhai17, zh05, or nicola20")
+    print("for HODs I expect zhai17, zh05, zehavi08, or nicola20")
 
 
 
@@ -63,12 +68,12 @@ nwalkers, ndim = pos.shape #For each point on our parameter space, we set a litt
 # Currently only set up for Nicola 2020 HOD, needs to be generalized for other HODs
 initial_params = zheng_dict(soln)
 
-initial_model = ccl.halos.HaloProfileHOD(mass_def=hmd_200m, concentration=cM)
-initial_model.update_parameters(    log10Mmin_0=initial_params['M_min'],
-                                    siglnM_0=initial_params['sig_logm'],
-                                    log10M0_0=initial_params['M_0'],
-                                    log10M1_0=initial_params['M_1'],
-                                    alpha_0=initial_params['alpha'])
+# initial_model = ccl.halos.HaloProfileHOD(mass_def=hmd_200m, concentration=cM)
+# initial_model.update_parameters(    log10Mmin_0=initial_params['M_min'],
+#                                     siglnM_0=initial_params['sig_logm'],
+#                                     log10M0_0=initial_params['M_0'],
+#                                     log10M1_0=initial_params['M_1'],
+#                                     alpha_0=initial_params['alpha'])
 
 
 
@@ -78,7 +83,7 @@ def log_probability(sample, thetas, inputACF, inputerrs):
         return -np.inf
     
     try:
-        return lp + log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, pass_hod_base_bool = False, pass_hod_base = initial_model)
+        return lp + log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD )#, pass_hod_base_bool = False, pass_hod_base = initial_model)
     except ccl.errors.CCLError:
         return -np.inf # Ideally just changing the Mmin prior to be limited to 10**15. Msun will reduce the chance of creating an integration error, but just in case
     
