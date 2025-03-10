@@ -66,7 +66,7 @@ else:
 nwalkers, ndim = pos.shape #For each point on our parameter space, we set a little walker a-wandering, to find the best fit parameters
 
 # Currently only set up for Nicola 2020 HOD, needs to be generalized for other HODs
-initial_params = zheng_dict(soln)
+#initial_params = zheng_dict(soln)
 
 # initial_model = ccl.halos.HaloProfileHOD(mass_def=hmd_200m, concentration=cM)
 # initial_model.update_parameters(    log10Mmin_0=initial_params['M_min'],
