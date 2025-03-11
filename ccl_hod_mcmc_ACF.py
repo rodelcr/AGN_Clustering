@@ -9,7 +9,7 @@ import multiprocessing
 import os
 
 os.environ["OMP_NUM_THREADS"] = "1"
-
+idx_override = 6
 
 steps = int(sys.argv[1])
 PrepvRun = str(sys.argv[2])
@@ -20,14 +20,15 @@ outfile_subject = str(sys.argv[4]) # numpy array file with x, y, yerr
 whichHOD="zehavi08"
 
 data = load_dict(data_path)
-x = data['theta']
-y = data['omega']
-err = data['covmat']
+x = data['theta'][idx_override:]
+y = data['omega'][idx_override:]
+err = data['covmat'][idx_override:, idx_override:]
 
 dNdz = data['dNdz']
 zgrid = data['zgrid']
 
-err1d = data['error']
+err1d = data['error'][idx_override:]
+
 idxs = np.where(np.isnan(err1d) == False)[0]
 
 x = x[idxs]
@@ -55,7 +56,7 @@ elif whichHOD=="nicola20":
     pos = soln + 0.01 * np.random.randn(nwalk, 5)
 
 elif whichHOD=="zehavi08":
-    soln = np.array([12.6, 12.6, 0.7])
+    soln = np.array([13.2, 14., 1.0])
     pos = soln + 0.01 * np.random.randn(nwalk, 3)
 
 else:
