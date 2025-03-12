@@ -46,7 +46,7 @@ whichHOD="zehavi08"
 # data_path2= str(sys.argv[6]) 
 outfile_subject = str(sys.argv[6])# numpy array file with x, y, yerr
 #whichHOD=str(sys.argv[5]) # Zhai17 or Zh05 for now
-whichHOD="nicola20"
+#whichHOD="nicola20"
 
 
 
