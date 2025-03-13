@@ -114,20 +114,20 @@ else:
 nwalkers, ndim = pos.shape #For each point on our parameter space, we set a little walker a-wandering, to find the best fit parameters
 
 
-def log_probability_i(sample, thetas, inputACF, inputerrs, zgrid = zgrid_list[0], dNdz = dNdz_list[0], LRG_solution = LRG_solution_list[0], zgrid2 = zgrid_LRG_list[0], dNdz2 = dNdz_LRG_list[0]):
+def log_probability_i(sample, thetas, inputACF, inputerrs, zgrid = zgrid_list[0], dNdz = dNdz_list[0], LRG_solution = LRG_solution_list[0], zs2 = zgrid_LRG_list[0], dNdz2 = dNdz_LRG_list[0]):
     lp = log_prior(sample, hod_str = whichHOD)
     if not np.isfinite(lp):
         return -np.inf
 
     try:
-        return lp + log_likelihood_ACF_LRG_fixed(LRG_solution, sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, hod_str2 = whichHOD2, zgrid2 = zgrid2, dNdz2 = dNdz2)
+        return lp + log_likelihood_ACF_LRG_fixed(LRG_solution, sample, thetas, inputACF, inputerrs, zgrid, dNdz, hod_str = whichHOD, hod_str2 = whichHOD2, zs2 = zgrid2, dNdz2 = dNdz2)
     except ccl.errors.CCLError:
         return -np.inf # Ideally just changing the Mmin prior to be limited to 10**15. Msun will reduce the chance of creating an integration error, but just in case
     
 def log_probability(sample, inputx_list, inputy_list, inputerrs_list):
     logprob=0
     for i in range(len(inputx_list)):
-        logprob+=log_probability_i(sample, inputx_list[i], inputy_list[i], inputerrs_list[i], zgrid = zgrid_list[i], dNdz = dNdz_list[i], LRG_solution = LRG_solution_list[i], zgrid2 = zgrid_LRG_list[i], dNdz2 = dNdz_LRG_list[i])
+        logprob+=log_probability_i(sample, inputx_list[i], inputy_list[i], inputerrs_list[i], zgrid = zgrid_list[i], dNdz = dNdz_list[i], LRG_solution = LRG_solution_list[i], zs2 = zgrid_LRG_list[i], dNdz2 = dNdz_LRG_list[i])
     return logprob
 
 
