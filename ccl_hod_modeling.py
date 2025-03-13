@@ -353,6 +353,8 @@ def ACF_model_HOD_CCL(cosmo, params, thetas, zs, dNdz,  hod_str = 'nicola20', pa
 
     return model
 
+
+
 def log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None):
     
     xi_clu1=ACF_model_HOD_CCL(cosmo, sample, thetas, zs, dNdz, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
@@ -365,6 +367,25 @@ def log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 
         return -0.5 * np.matmul(np.matmul(r.T, inputerrs), r)
     else: 
         print("Error in log_likelihood_ACF: inputerrs must be 1D or 2D")
+
+
+def log_likelihood_ACF_LRG_fixed(LRG_solution, sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
+                    zs2 = None, dNdz2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+    
+
+    xi_clu1=ACF_model_HOD_CCL(cosmo, sample, thetas, zs, dNdz, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent=ns_independent,
+                              params2= LRG_solution, zs2= zs2, dNdz2 = dNdz2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2=ns_independent2)
+    #TODO clean up this function to reduce the overhead of building the HOD code every time 
+
+    if np.ndim(inputerrs) == 1:
+        return -0.5 * np.sum(((inputACF-xi_clu1)/inputerrs)**2) 
+    if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
+        #inverse = np.linalg.inv(inputerrs)
+        r = inputACF-xi_clu1
+        return -0.5 * np.matmul(np.matmul(r.T, inputerrs), r)
+    else: 
+        print("Error in log_likelihood_ACF_LRG_fixed: inputerrs must be 1D or 2D")
+
 
 
 ##### Analysis functions 
