@@ -263,7 +263,7 @@ def log_likelihood(sample, inputrs, inputwps, inputerrs, a, hod_str = 'nicola20'
 
     wp_rps = np.interp(inputrs, rp_array, wp_rps) #Interpolate the theoretical PCF to the same distances as our observed PCF
     if np.ndim(inputerrs) == 1:
-        return -0.5 * np.sum(((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
+        return -0.5 * np.sum(np.log(2*np.pi*inputerrs) +  ((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
         #inverse = np.linalg.inv(inputerrs) # assume inverse covariance matrix is being passed 
         r = inputwps-wp_rps
@@ -281,7 +281,7 @@ def log_likelihood_LRG_fixed(LRG_solution, sample, inputrs, inputwps, inputerrs,
 
     wp_rps = np.interp(inputrs, rp_array, wp_rps) #Interpolate the theoretical PCF to the same distances as our observed PCF
     if np.ndim(inputerrs) == 1:
-        return -0.5 * np.sum(((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
+        return -0.5 * np.sum(np.log(2*np.pi*inputerrs) + ((inputwps-wp_rps)/inputerrs)**2) #The function's output is the square of the "distance" between our observed and theoretical PCF
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
         #inverse = np.linalg.inv(inputerrs) # assume inverse covariance matrix is being passed 
         r = inputwps-wp_rps
@@ -360,7 +360,7 @@ def log_likelihood_ACF(sample, thetas, inputACF, inputerrs, zs, dNdz, hod_str = 
     xi_clu1=ACF_model_HOD_CCL(cosmo, sample, thetas, zs, dNdz, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base)
 
     if np.ndim(inputerrs) == 1:
-        return -0.5 * np.sum(((inputACF-xi_clu1)/inputerrs)**2) 
+        return -0.5 * np.sum(np.log(2*np.pi*inputerrs) + ((inputACF-xi_clu1)/inputerrs)**2) 
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
         #inverse = np.linalg.inv(inputerrs)
         r = inputACF-xi_clu1
@@ -378,7 +378,7 @@ def log_likelihood_ACF_LRG_fixed(LRG_solution, sample, thetas, inputACF, inputer
     #TODO clean up this function to reduce the overhead of building the HOD code every time 
 
     if np.ndim(inputerrs) == 1:
-        return -0.5 * np.sum(((inputACF-xi_clu1)/inputerrs)**2) 
+        return -0.5 * np.sum(np.log(2*np.pi*inputerrs) + ((inputACF-xi_clu1)/inputerrs)**2) 
     if np.ndim(inputerrs) == 2 and inputerrs.shape[0] == inputerrs.shape[1]:
         #inverse = np.linalg.inv(inputerrs)
         r = inputACF-xi_clu1
