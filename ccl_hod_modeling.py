@@ -80,7 +80,6 @@ def zhai_dict(params):
 
 def elg_dict(params):
     return {'pmax': params[0], 'Q': params[1], 'M_cut': params[2], 'sig_logm': params[3], 'gamma': params[4], 'M_1': params[5], 'alpha': params[6], 'k': params[7]}
-#pmax = 0.075, Q = 95, log Mcut = 11.9, σ = 0.5, γ = 5, log M1 = 14.2, α = 0.65, and κ = 1.35. Yuan 2022
 
 def zehavi_dict(params):
     return {'M_min': params[0], 'M_1': params[1], 'alpha': params[2]}
