@@ -204,7 +204,7 @@ def CCL_hod_model(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass
 
 # Define the HOD model
 def PofK(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
-         params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+         params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False, get_1h = True, get_2h = True):
 
     pg = CCL_hod_model(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent)
     
@@ -215,7 +215,7 @@ def PofK(params, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base
         pg2 = None
 
     pk_gg_Pk2D = ccl.halos.halomod_Pk2D(cosmo, hmc, pg, prof_2pt=HOD2pt, prof2 = pg2,
-                                lk_arr=np.log(k_arr), a_arr=a_arr)
+                                lk_arr=np.log(k_arr), a_arr=a_arr, get_1h=get_1h, get_2h=get_2h,)
 
     return pk_gg_Pk2D
 
@@ -245,10 +245,10 @@ def wprp_model_Pk_CCL(cosmo, rps, a, Pk2D):
     return model
 
 def wprp_model_HOD_CCL(cosmo, params, rps, a, hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None,ns_independent = False,
-                       params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+                       params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False, get_1h = True, get_2h = True):
 
     pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent, 
-                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
+                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2, get_1h = get_1h, get_2h = get_2h)
 
     model = wprp_model_Pk_CCL(cosmo, rps, a, pk_gg_Pk2D)
 
@@ -343,11 +343,11 @@ def ACF_model_Pk_CCL(cosmo, thetas, Pk2D, zs, dNdz, zs2= None, dNdz2 = None, b_ 
 
 def ACF_model_HOD_CCL(cosmo, params, thetas, zs, dNdz,  hod_str = 'nicola20', pass_hod_base_bool = False, pass_hod_base = None, ns_independent = False,
                       zs2= None, dNdz2 = None,
-                      params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False):
+                      params2 = None, hod_str2 = 'nicola20', pass_hod_base_bool2 = False, pass_hod_base2 = None, ns_independent2 = False, get_1h = True, get_2h = True):
 
 
     pk_gg_Pk2D = PofK(params, hod_str = hod_str, pass_hod_base_bool = pass_hod_base_bool, pass_hod_base = pass_hod_base, ns_independent = ns_independent,
-                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2)
+                      params2 = params2, hod_str2 = hod_str2, pass_hod_base_bool2 = pass_hod_base_bool2, pass_hod_base2 = pass_hod_base2, ns_independent2 = ns_independent2, get_1h = get_1h, get_2h = get_2h)
 
     model = ACF_model_Pk_CCL(cosmo, thetas, pk_gg_Pk2D, zs, dNdz, zs2= zs2, dNdz2 = dNdz2)
 
