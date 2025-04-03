@@ -41,7 +41,7 @@ outfile_subject = str(sys.argv[10])# numpy array file with x, y, yerr
 whichHOD="zehavi08"
 whichHOD2="zehavi08"
 
-
+ 
 x,y,inverse_covmat = file_prep(data_path1)
 x2,y2,inverse_covmat2 = file_prep(data_path2)
 x3,y3,inverse_covmat3 = file_prep(data_path3)
