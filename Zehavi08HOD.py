@@ -386,7 +386,7 @@ class Zehavi08HOD(HaloProfileHOD):
         if self.ns_independent:
             prof = 2 * Nc[:, None] * fc * prof + prof**2
         else:
-            prof = Nc[:, None] * (2 * fc * prof + prof**2)
+            prof = Nc[:, None] * (2 * fc * prof + (Nc[:, None]*prof**2))
 
         if np.ndim(k) == 0:
             prof = np.squeeze(prof, axis=-1)
