@@ -302,7 +302,7 @@ def log_prior(sample, hod_str = 'nicola20'):
         M_min, M_1, alpha = sample 
         max_M = 16.95
         min_M = 9.0
-        if min_M < M_min < 15. and min_M < M_1 < max_M and 0.0 < alpha < 2.0:
+        if min_M < M_min < 15. and min_M < M_1 < max_M and 0.0 < alpha < 4.0:
             return 0.0
         else:
             return -np.inf
@@ -311,11 +311,20 @@ def log_prior(sample, hod_str = 'nicola20'):
         M_min, sig_logm, M_0, M_1, alpha = sample 
         max_M = 16.95
         min_M = 9.0
-        if min_M < M_min < 15. and min_M < M_0 < max_M and 0.0 < alpha < 2.0 and 0 < sig_logm < 2 and min_M < M_1 < max_M and (((M_0/M_min) -1) >= 0):
+        if min_M < M_min < 15. and min_M < M_0 < max_M and 0.0 < alpha < 4.0 and 0 < sig_logm < 2 and min_M < M_1 < max_M and (((M_0/M_min) -1) >= 0):
             return 0.0
         else:
             return -np.inf
 
+
+    if hod_str=="elg":
+        pmax, Q, Mcut, sig_logm, gamma, M_1, alpha, k  = sample 
+        max_M = 16.95
+        min_M = 9.0
+        if min_M < Mcut < 15. and 0<pmax<1.  and 0.0 < alpha < 4.0 and 0 < sig_logm < 3 and min_M < M_1 < max_M and 0 < Q < 400 and 0 < gamma < 20 and  0< k <2 and (((M_1/M_cut) -1) >= 0):
+            return 0.0
+        else:
+            return -np.inf
         
     else:
         print("for HODs I expect zheng07, zehavi08, zhai17 or nicola20")
@@ -480,6 +489,31 @@ def satellite_fraction_NcNs(HODProfile_obj, cosmo, a, ns_independent = False):
 
 def Mave_from_Mmin(Mmin, HODProfile_obj, cosmo, a, ns_independent = False):
     hmc = ccl.halos.HMCalculator(mass_function=nM, halo_bias=bM, mass_def=hmd_200m, log10M_min = Mmin)
+
+
+    def integ(M):
+        Nc = HODProfile_obj._Nc(M, a)
+        Ns = HODProfile_obj._Ns(M, a)
+
+        if ns_independent:
+            return M * (Nc + Ns)
+        if not ns_independent:
+            return M * (Nc * (1+Ns))
+        
+    def integ_norm(M):
+        Nc = HODProfile_obj._Nc(M, a)
+        Ns = HODProfile_obj._Ns(M, a)
+
+        if ns_independent:
+            return (Nc + Ns)
+        if not ns_independent:
+            return (Nc * (1+Ns))
+        
+    return hmc.integrate_over_massfunc(integ, cosmo, a)/hmc.integrate_over_massfunc(integ_norm, cosmo, a)
+
+
+def Mave_from_CCLmodel(HODProfile_obj, cosmo, a, ns_independent = False):
+    hmc = ccl.halos.HMCalculator(mass_function=nM, halo_bias=bM, mass_def=hmd_200m)
 
 
     def integ(M):
