@@ -321,7 +321,7 @@ def log_prior(sample, hod_str = 'nicola20'):
         pmax, Q, Mcut, sig_logm, gamma, M_1, alpha, k  = sample 
         max_M = 16.95
         min_M = 9.0
-        if min_M < Mcut < 15. and 0<pmax<1.  and 0.0 < alpha < 4.0 and 0 < sig_logm < 3 and min_M < M_1 < max_M and 0 < Q < 400 and 0 < gamma < 20 and  0< k <2 and (((M_1/M_cut) -1) >= 0):
+        if min_M < Mcut < 15. and 0<pmax<1.  and 0.0 < alpha < 4.0 and 0 < sig_logm < 3 and min_M < M_1 < max_M and 0 < Q < 400 and 0 < gamma < 20 and  0< k <2 and (((M_1/Mcut) -1) >= 0):
             return 0.0
         else:
             return -np.inf

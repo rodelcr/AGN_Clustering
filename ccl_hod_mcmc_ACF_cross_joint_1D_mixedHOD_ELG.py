@@ -148,7 +148,7 @@ def main():
 
         print('Running!')
         # Set up the backend
-        filename = f"../{outfile_subject}_ACF_mixed_HOD_"+whichHOD+"_MCMC_0507 d_"+str(steps)+"_steps.h5"
+        filename = f"../{outfile_subject}_ACF_mixed_HOD_"+whichHOD+"_MCMC_0507_"+str(steps)+"_steps.h5"
         backend = emcee.backends.HDFBackend(filename)
                 
         nsteps = steps #Number of steps we want our walkers to take
